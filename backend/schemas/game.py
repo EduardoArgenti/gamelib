@@ -21,9 +21,6 @@ class GameResponse(BaseModel):
     release_date: str
     avg_time: Optional[float] = None
     platforms: Optional[str] = None
-    created_at: str
-    updated_at: str
-    deleted_at: Optional[str]
 
     class Config:
         orm_mode = True
