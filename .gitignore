@@ -1,0 +1,7 @@
+assets/
+backend/database.db
+backend/migrations.sql
+backend/seeders.sql
+tests/
+__pycache__/
+gemerate_uuid.py

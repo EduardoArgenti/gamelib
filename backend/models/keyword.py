@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, text
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -9,10 +9,24 @@ class Keyword(Base):
     __tablename__ = "keywords"
 
     id = Column(String, primary_key=True)
-    name = Column(String)
-    created_at = Column(String)
-    updated_at = Column(String)
-    deleted_at = Column(String)
+    name = Column(String, nullable=False)
+
+    created_at = Column(
+        String,
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP")
+    )
+
+    updated_at = Column(
+        String,
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP")
+    )
+
+    deleted_at = Column(
+        String,
+        nullable=True
+    )
 
     games = relationship(
         "Game",

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float
+from sqlalchemy import Column, String, Float, text
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -15,9 +15,23 @@ class Game(Base):
     release_date = Column(String)
     avg_time = Column(Float)
     platforms = Column(String)
-    created_at = Column(String)
-    updated_at = Column(String)
-    deleted_at = Column(String)
+
+    created_at = Column(
+        String,
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP")
+    )
+
+    updated_at = Column(
+        String,
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP")
+    )
+
+    deleted_at = Column(
+        String,
+        nullable=True
+    )
 
     keywords = relationship(
         "Keyword",
