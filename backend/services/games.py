@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from repositories.games import get_all_games
 from repositories.games import create_game as create_game_repository
 from repositories.games_keywords import add_game_keyword
-from schemas.game import GameCreate
+from schemas.game import GameCreate, GameResponse
 
 from services.keywords import get_or_create_keyword
 
@@ -58,8 +58,24 @@ def create_game(db: Session, game: GameCreate):
         db.commit()
         db.refresh(new_game)
 
-        return new_game
+        return game_to_response(new_game)
 
     except Exception:
         db.rollback()
         raise
+
+
+def game_to_response(game):
+    return GameResponse(
+        id=game.id,
+        name=game.name,
+        publisher=game.publisher,
+        developer=game.developer,
+        keywords=[keyword.name for keyword in game.keywords],
+        release_date=game.release_date,
+        avg_time=game.avg_time,
+        platforms=game.platforms,
+        created_at=game.created_at,
+        updated_at=game.updated_at,
+        deleted_at=game.deleted_at,
+    )

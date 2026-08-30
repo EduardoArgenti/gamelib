@@ -1,6 +1,7 @@
 import uuid
 
 from sqlalchemy.orm import Session, selectinload
+from schemas.game import GameResponse
 
 from models.game import Game
 from schemas.game import GameCreate

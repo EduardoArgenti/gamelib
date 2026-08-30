@@ -9,8 +9,8 @@ class GameCreate(BaseModel):
     developer: str
     keywords: List[str]
     release_date: str
-    avg_time: float
-    platforms: Optional[str]
+    avg_time: Optional[float] = None
+    platforms: Optional[str] = None
 
 class GameResponse(BaseModel):
     id: str
@@ -19,8 +19,8 @@ class GameResponse(BaseModel):
     developer: str
     keywords: List[str]
     release_date: str
-    avg_time: float
-    platforms: Optional[str]
+    avg_time: Optional[float] = None
+    platforms: Optional[str] = None
     created_at: str
     updated_at: str
     deleted_at: Optional[str]
