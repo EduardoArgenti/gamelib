@@ -7,13 +7,6 @@ from models.game import Game
 from schemas.game import GameCreate
 
 
-def get_all_games(db: Session):
-    return (
-        db.query(Game)
-        .options(selectinload(Game.keywords))
-        .all()
-    )
-
 def create_game(db: Session, game_data: GameCreate):
     new_game = Game(
         id = str(uuid.uuid4()),
@@ -30,3 +23,28 @@ def create_game(db: Session, game_data: GameCreate):
     db.refresh(new_game)
 
     return new_game
+
+
+def get_all_games(db: Session):
+    return (
+        db.query(Game)
+        .options(selectinload(Game.keywords))
+        .all()
+    )
+
+
+def get_game(game_id, db: Session):
+    return (
+        db.query(Game)
+        .filter_by(id=game_id)
+        .options(selectinload(Game.keywords))
+        .first()
+    )
+
+
+def delete_game(game_id, db: Session):
+    return (
+        db.query(Game)
+        .filter_by(id=game_id)
+        .delete()
+    )

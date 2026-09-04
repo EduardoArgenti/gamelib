@@ -7,6 +7,7 @@ class GameCreate(BaseModel):
     name: str
     publisher: str
     developer: str
+    image_url: str
     keywords: List[str]
     release_date: str
     avg_time: Optional[float] = None
@@ -17,6 +18,7 @@ class GameResponse(BaseModel):
     name: str
     publisher: str
     developer: str
+    cover_url: str = None
     keywords: List[str]
     release_date: str
     avg_time: Optional[float] = None

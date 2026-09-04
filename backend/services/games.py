@@ -1,35 +1,31 @@
 from sqlalchemy.orm import Session
 
 from repositories.games import get_all_games
+from repositories.games import get_game as get_game_repository
 from repositories.games import create_game as create_game_repository
+from repositories.games import delete_game as delete_game_repository
 from repositories.games_keywords import add_game_keyword
 from schemas.game import GameCreate, GameResponse
 
 from services.keywords import get_or_create_keyword
 
+import requests
+
+
 def get_games(db: Session):
     games = get_all_games(db)
 
     return [
-        {
-            "id": game.id,
-            "name": game.name,
-            "publisher": game.publisher,
-            "developer": game.developer,
-            "keywords": [
-                keyword.name
-                for keyword in game.keywords
-                if keyword.deleted_at is None
-            ],
-            "release_date": game.release_date,
-            "avg_time": game.avg_time,
-            "platforms": game.platforms,
-            "created_at": game.created_at,
-            "updated_at": game.updated_at,
-            "deleted_at": game.deleted_at,
-        }
+        game_to_response(game)
         for game in games
     ]
+
+
+def get_game(game_id, db: Session):
+    game = get_game_repository(game_id, db)
+
+    return game_to_response(game)
+
 
 def create_game(db: Session, game: GameCreate):
     try:
@@ -58,11 +54,26 @@ def create_game(db: Session, game: GameCreate):
         db.commit()
         db.refresh(new_game)
 
+        download_game_image(new_game.id, game.image_url)
+
         return game_to_response(new_game)
 
     except Exception:
         db.rollback()
         raise
+
+
+def download_game_image(id, game_url):
+    filename = f'{ASSETS_DIR}/images/games/{id}/cover.jpg'
+
+    response = requests.get(image_url)
+
+    if response.status_code == 200:
+        with open(filename, 'wb') as file:
+            file.write(response.content)
+        print("Image downloaded successfully!")
+    else:
+        print(f"Failed to download image. Status code: {response.status_code}")
 
 
 def game_to_response(game):
@@ -71,6 +82,7 @@ def game_to_response(game):
         name=game.name,
         publisher=game.publisher,
         developer=game.developer,
+        cover_url=f"/assets/images/games/{game.id}/cover.jpg",
         keywords=[keyword.name for keyword in game.keywords],
         release_date=game.release_date,
         avg_time=game.avg_time,
@@ -79,3 +91,22 @@ def game_to_response(game):
         updated_at=game.updated_at,
         deleted_at=game.deleted_at,
     )
+
+
+def delete_game(game_id: str, db: Session):
+    try:
+        deleted = delete_game_repository(game_id, db)
+
+        if deleted == 0:
+            raise HTTPException(
+                status_code=404,
+                detail="Game not found"
+            )
+
+        db.commit()
+
+        return {"message": "Game deleted successfully"}
+
+    except Exception:
+        db.rollback()
+        raise
