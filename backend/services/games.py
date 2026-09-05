@@ -10,6 +10,11 @@ from schemas.game import GameCreate, GameResponse
 from services.keywords import get_or_create_keyword
 
 import requests
+import os
+
+from pathlib import Path
+
+ASSETS_DIR = "/home/edusilva/gamelib/assets"
 
 
 def get_games(db: Session):
@@ -51,10 +56,10 @@ def create_game(db: Session, game: GameCreate):
                 keyword.id
             )
 
+        download_game_image(new_game.id, game.image_url)
+
         db.commit()
         db.refresh(new_game)
-
-        download_game_image(new_game.id, game.image_url)
 
         return game_to_response(new_game)
 
@@ -63,17 +68,18 @@ def create_game(db: Session, game: GameCreate):
         raise
 
 
-def download_game_image(id, game_url):
-    filename = f'{ASSETS_DIR}/images/games/{id}/cover.jpg'
+def download_game_image(game_id: str, game_url: str):
+    directory = Path(ASSETS_DIR) / "images" / "games" / game_id
+    filename = directory / "cover.jpg"
 
-    response = requests.get(image_url)
+    directory.mkdir(parents=True, exist_ok=True)
+
+    response = requests.get(game_url)
 
     if response.status_code == 200:
-        with open(filename, 'wb') as file:
+        with open(filename, "wb") as file:
             file.write(response.content)
-        print("Image downloaded successfully!")
-    else:
-        print(f"Failed to download image. Status code: {response.status_code}")
+
 
 
 def game_to_response(game):
